@@ -31,11 +31,11 @@ local Config = {
             coords = vector4(-444.77, -324.94, 34.91, 272.47),
         },
 
-        PropModel    = "v_med_crutch01",  -- confirmed working GTA5 crutch model
-        PropBone     = 70,              -- SKEL_L_Hand (left hand, matches crutch natural grip)
-        PropOffset   = vector3(1.18, -0.36, -0.20),
-        PropRotation = vector3(-20.0, -87.0, -20.0),
-
+        PropModel    = "v_med_crutch01",  
+        PropBone     = 57005,               -- Right Hand (SKEL_R_Hand)
+        PropOffset   = vector3(0.12, 0.05, 0.02), -- Pushes it slightly out from the body
+        PropRotation = vector3(90.0, 0.0, 0.0),   -- FLIPS IT VERTICAL
+        
         LimpDict = "move_m@injured",
         LimpClip = "injured",
     },
