@@ -27,14 +27,14 @@ local Config = {
         RemoveCost = 500,
 
         RemovePed = {
-            model  = "s_f_y_nurse_01",
-            coords = vector4(341.50, -1397.5, 32.51, 160.0),
+            model  = "s_m_m_doctor_01",
+            coords = vector4(-444.77, -324.94, 34.91, 272.47),
         },
 
         PropModel    = "v_med_crutch01",  -- confirmed working GTA5 crutch model
-        PropBone     = 18905,              -- SKEL_L_Hand (left hand, matches crutch natural grip)
-        PropOffset   = vector3(0.03, 0.0, 0.0),
-        PropRotation = vector3(0.0, 180.0, 80.0),
+        PropBone     = 70,              -- SKEL_L_Hand (left hand, matches crutch natural grip)
+        PropOffset   = vector3(1.18, -0.36, -0.20),
+        PropRotation = vector3(-20.0, -87.0, -20.0),
 
         LimpDict = "move_m@injured",
         LimpClip = "injured",
@@ -186,24 +186,39 @@ end
 
 local function SpawnRemovePed()
     local pedCfg    = Config.Crutch.RemovePed
-    local modelHash = LoadModel(pedCfg.model)
+    local modelHash = LoadModel("s_m_m_doctor_01") -- UPDATED MODEL
 
-    removePedHandle = CreatePed(4, modelHash,
-        pedCfg.coords.x, pedCfg.coords.y, pedCfg.coords.z,
-        pedCfg.coords.w, false, true)
+    removePedHandle = CreatePed(0, modelHash,
+        pedCfg.coords.x, pedCfg.coords.y, pedCfg.coords.z - 1.0,
+        pedCfg.coords.w, false, false)
+
+    if not DoesEntityExist(removePedHandle) then
+        print("[ml-checkin] ERROR: Failed to spawn remove ped")
+        return
+    end
 
     SetEntityAsMissionEntity(removePedHandle, true, true)
-    SetPedDiesWhenInjured(removePedHandle, false)
-    SetPedCanRagdoll(removePedHandle, false)
+
+    -- Ensure visibility + proper rendering
+    SetEntityVisible(removePedHandle, true, false)
+    SetPedDefaultComponentVariation(removePedHandle)
+
+    -- Standard ped flags
     FreezeEntityPosition(removePedHandle, true)
+    SetEntityInvincible(removePedHandle, true)
     SetBlockingOfNonTemporaryEvents(removePedHandle, true)
+    SetPedCanRagdoll(removePedHandle, false)
+    SetPedDiesWhenInjured(removePedHandle, false)
+
     SetModelAsNoLongerNeeded(modelHash)
+
+    -- DEBUG
+    print("[ml-checkin] Remove ped spawned:", removePedHandle)
 
     exports.ox_target:addLocalEntity(removePedHandle, {
         {
-            label     = string.format("Pay $%s — Remove Crutch Early", Config.Crutch.RemoveCost),
+            label     = string.format("Pay $%s â€” Remove Crutch Early", Config.Crutch.RemoveCost),
             icon      = "fas fa-dollar-sign",
-            iconColor = "#2ecc71",
             distance  = 2.5,
             onSelect  = function()
                 if not crutchActive then
@@ -216,7 +231,6 @@ local function SpawnRemovePed()
         {
             label     = "Check Time Remaining",
             icon      = "fas fa-clock",
-            iconColor = "#e67e22",
             distance  = 2.5,
             onSelect  = function()
                 Notify(string.format("Crutch will be removed in %s.", FormatTime(crutchTimeLeft)), "primary", 4000)
@@ -325,7 +339,7 @@ local function PerformCheckIn()
         ClearPedTasks(playerPed)
 
         Wait(500)
-        Notify("You have been admitted to " .. bed.label .. ". NLR applies — forget the last 15 minutes.", "success", 8000)
+        Notify("You have been admitted to " .. bed.label .. ". NLR applies â€” forget the last 15 minutes.", "success", 8000)
 
         Wait(2000)
         StartCrutch()
@@ -337,7 +351,7 @@ local function PerformCheckIn()
 end
 
 -- =============================================
--- OX_TARGET — CHECK-IN ZONE
+-- OX_TARGET â€” CHECK-IN ZONE
 -- =============================================
 
 CreateThread(function()
@@ -390,7 +404,7 @@ RegisterCommand('crutchadj', function(source, args)
         true, true, false, true, 1, true
     )
 
-    Notify(string.format("Crutch adjusted — Offset: %.2f %.2f %.2f | Rot: %.2f %.2f %.2f", ox, oy, oz, rx, ry, rz), "primary", 4000)
+    Notify(string.format("Crutch adjusted â€” Offset: %.2f %.2f %.2f | Rot: %.2f %.2f %.2f", ox, oy, oz, rx, ry, rz), "primary", 4000)
     print(string.format("[ml-checkin] PropOffset = vector3(%.2f, %.2f, %.2f), PropRotation = vector3(%.2f, %.2f, %.2f)", ox, oy, oz, rx, ry, rz))
 end, false)
 
